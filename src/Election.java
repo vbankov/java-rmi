@@ -1,8 +1,9 @@
 import java.rmi.*;
 import java.sql.*;
 import java.util.List;
-public interface Calculator extends Remote {
-    public class Candidate{
+import java.io.Serializable;
+public interface Election extends Remote {
+    public class Candidate implements Serializable{
         public int id;
         public String name;
         public int votes;

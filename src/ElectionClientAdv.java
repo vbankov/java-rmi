@@ -4,14 +4,16 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
 import java.util.Scanner;
-public class CalculatorClientAdv {	
+@Deprecated
+public class ElectionClientAdv {	
+        @Deprecated
 	public static void main(String[] args) throws MalformedURLException {	
 		try {	
 			System.setSecurityManager(new MyRMISecurityManager());
                         Registry registry = LocateRegistry.getRegistry("localhost", 18300);
 			// Lookup a remote reference to a remote object of Calculator type 
 			String name = "rmi://localhost/CalculatorService";
-			Calculator c = (Calculator) registry.lookup(name);
+			Election c = (Election) registry.lookup(name);
                         // Calculator c = (Calculator) Naming.lookup(name);
 						
 			calculateProcess(c);
@@ -20,8 +22,8 @@ public class CalculatorClientAdv {
 			System.out.println("Other exception");
 		}
 	} // main
-	
-	static void calculateProcess(Calculator c) {
+	@Deprecated
+	static void calculateProcess(Election c) {
 		int x, y;
 		char op, choice;
 		try {

@@ -3,8 +3,8 @@ import java.rmi.*;
 import java.rmi.server.*;
 import java.sql.*;
 import java.util.*;
-public class CalculatorImpl extends UnicastRemoteObject implements Calculator {
-	public CalculatorImpl() throws RemoteException {
+public class ElectionController extends UnicastRemoteObject implements Election {
+	public ElectionController() throws RemoteException {
 		super(); 
 	}
         @Override
@@ -44,4 +44,4 @@ public class CalculatorImpl extends UnicastRemoteObject implements Calculator {
 	public long div (long a, long b) throws RemoteException {
 		return a / b; 
 	}
-} // CalculatorImpl
+} // ElectionController
