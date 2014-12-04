@@ -22,7 +22,7 @@ public class ElectionServer {
             z.add("Uncle Scrooge");
             // populate db with candidates
             int j;
-            for(int i=1;i<6;i++){
+            for(int i=0;i<5;i++){
                 j = i+1;
                 query = "INSERT INTO CANDIDATE(ID,NAME,VOTES) VALUES ("+j+",\'"+z.get(i)+"\',0) ";
                 stmt.execute(query);
@@ -50,13 +50,13 @@ public class ElectionServer {
             // initialize database state
             System.out.print("Populating Database: ");
             initializeDB();
-            System.out.print("\t\t\tComplete\n");
+            System.out.print("\t\tComplete\n");
             // initialize electionController
             Election c = new ElectionController();
             // bind election to registry
             registry.rebind(name, c);
             // shout-out
-            System.out.println("RMI magic happens on port 18300: \tThe election service was started.");
+            System.out.println("Election service started: \tRMI magic happens on port 18300");
         }
         catch (RemoteException | SQLException e) { 
             System.out.println("Exception caught " + "during: " + e);

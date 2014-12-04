@@ -9,6 +9,7 @@ public interface Election extends Remote {
     }
     public class ElectionResult implements Serializable{
         public int candidateId;
+        public String name;
         public int votes;
     }
     public class Voter implements Serializable{
@@ -16,4 +17,8 @@ public interface Election extends Remote {
         public boolean hasVoted;
     }
     public List<Candidate> getCandidates() throws RemoteException, SQLException;
-} // Calculator
+    public ElectionResult getResults(int id) throws RemoteException, SQLException;
+    public int login(int voterID) throws RemoteException, SQLException;
+    public void logout(int voterID) throws RemoteException;
+    public void vote(int voterID, int candidateID) throws RemoteException, SQLException;
+} // Election
