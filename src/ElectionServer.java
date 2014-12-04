@@ -1,4 +1,3 @@
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -23,7 +22,7 @@ public class ElectionServer {
             z.add("Uncle Scrooge");
             // populate db with candidates
             int j;
-            for(int i=0;i<5;i++){
+            for(int i=1;i<6;i++){
                 j = i+1;
                 query = "INSERT INTO CANDIDATE(ID,NAME,VOTES) VALUES ("+j+",\'"+z.get(i)+"\',0) ";
                 stmt.execute(query);

@@ -38,16 +38,16 @@ public class ElectionClientAdv {
 				System.out.println();
 				switch (op) {
 					case '+' : 
-						System.out.println(x + " " + op + " " + y + " = " + c.add(x, y));
+//						System.out.println(x + " " + op + " " + y + " = " + c.add(x, y));
 						break;
 					case '-' : 
-						System.out.println(x + " " + op + " " + y + " = " + c.sub(x, y));
+//						System.out.println(x + " " + op + " " + y + " = " + c.sub(x, y));
 						break;
 					case '*' : 
-						System.out.println(x + " " + op + " " + y + " = " + c.mul(x, y));
+//						System.out.println(x + " " + op + " " + y + " = " + c.mul(x, y));
 						break;
 					case '/' : 
-						System.out.println(x + " " + op + " " + y + " = " + c.div(x, y));
+//						System.out.println(x + " " + op + " " + y + " = " + c.div(x, y));
 						break;
 					default:
 						System.out.println("Unknown operation");
@@ -57,9 +57,9 @@ public class ElectionClientAdv {
 				System.out.println();
 			} while (choice != 'n' && choice != 'N');
 		}
-		catch (RemoteException re) {
-			System.out.println("Remote Exception");
-		}
+//		catch (RemoteException re) {
+//			System.out.println("Remote Exception");
+//		}
 		catch (InputMismatchException e) {
 			System.out.println("Input mismatch exception");
 		}
