@@ -55,17 +55,22 @@ public class ElectionClient {
                                 loggedIn = c.login(s);
                             }
                             voterID = s;
-                            System.out.println("Logged in as "+voterID+"\nUse a number then press Enter. \n[1] Candidates List \t[2] Candidate Result \t[3] Vote \t[0] Logout");
+                            boolean canVote = c.validateVoteRight(voterID);
+                            System.out.println("Logged in as "+voterID+". CanVote is "+canVote+"\nUse a number then press Enter. \n[1] Candidates List \t[2] Candidate Result \t[3] Vote \t[0] Logout");
                             s = in.nextInt();
                             while(s!=0){ // Exit when 0 is entered                               
                                 if(s==1){   // Print candidates when 1 is entered 
                                     printCandidates(c);   
-                                }else if(s==2){
+                                }else if(s==2){ // Get candidate resultss
                                     System.out.print("Insert Candidate id: ");
                                     s = in.nextInt();
                                     Election.ElectionResult er = null;
                                     er = c.getResults(s);
                                     System.out.println("\nResults:\b\t ID: "+er.candidateId+" \tName:"+er.name+"\tVotes: "+er.votes+"\n");
+                                }else if(s==3){ // Vote
+                                    System.out.print("Vote for candidate: ");
+                                    s = in.nextInt();
+                                    c.vote(voterID, s);
                                 }
                                 System.out.println("Options:\t[1] Candidates List \t[2] Candidate Result \t[3] Vote \t[0] Logout");
                                 s = in.nextInt();

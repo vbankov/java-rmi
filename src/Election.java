@@ -20,5 +20,6 @@ public interface Election extends Remote {
     public ElectionResult getResults(int id) throws RemoteException, SQLException;
     public int login(int voterID) throws RemoteException, SQLException;
     public void logout(int voterID) throws RemoteException;
+    public boolean validateVoteRight(int voterID) throws RemoteException, SQLException;
     public void vote(int voterID, int candidateID) throws RemoteException, SQLException;
 } // Election

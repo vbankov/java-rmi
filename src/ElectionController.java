@@ -65,6 +65,18 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         System.out.println("[Info]\tUser "+voterID+" has disconnected");
     }
     @Override
+    public boolean validateVoteRight(int voterID) throws RemoteException, SQLException{
+        String q = "SELECT HASVOTED FROM VOTER WHERE ID="+voterID;
+        Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(q);
+        int hasVoted = 1;   // return NOvote if voter not in db
+        while(rs.next()){
+            hasVoted = rs.getInt("HASVOTED");
+        }
+        return (hasVoted==0);
+    }
+    @Override
     public void vote(int voterID, int candidateID) throws RemoteException, SQLException{
         String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
@@ -76,6 +88,8 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         }
         int newVotes = currentVotes+1;
         q = "UPDATE CANDIDATE SET VOTES="+newVotes+" WHERE ID="+candidateID;
-        System.out.println(q);
+        String q2 = "UPDATE VOTER SET HASVOTED=1 WHERE ID="+voterID; 
+        int ex1 = stmt.executeUpdate(q2);     // SYNCHRONIZE THESE
+        int ex2 = stmt.executeUpdate(q);      // SYNCHRONIZE THESE
     }
 } // ElectionController
