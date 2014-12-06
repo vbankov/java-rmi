@@ -4,44 +4,33 @@ import java.sql.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
-public class ElectionClient {	
-    public static void printCandidates(Election c) throws SQLException, RemoteException{
-            try{
+public class ElectionClient {
+    
+    public static void printCandidates(Election election) throws SQLException, RemoteException{
+         
                 List<Election.Candidate> cands = null;
-                cands = c.getCandidates();
-                int candsNumber = cands.size();
-                System.out.println("Got "+candsNumber+" candidates:");
-                for(int i=0; i<candsNumber;i++){
+                cands = election.getCandidates();
+                 
+                System.out.println("Got "+cands.size()+" candidates:");
+                for(int i=0; i<cands.size(); i++){
                     String t = "\t"+cands.get(i).id+"\t"+cands.get(i).name+"\t";
                     System.out.println(t);
                 }
-            }catch (SQLException se){
-               System.out.println("BOOOM ! SQLException");
-               se.printStackTrace();
-            }
-            catch (RemoteException re) {
-                    System.out.println("BOOOM ! Remote Exception");
-                    re.printStackTrace();
-            }
-    };
-    public static Election initRmiElection(){
-        try{
+            
+    }
+    
+    public static Election initRmiElection() throws RemoteException, NotBoundException{
+       
             System.setSecurityManager (new MyRMISecurityManager()); // Lookup a remote reference to a remote object of Calculator type 
             Registry registry = LocateRegistry.getRegistry("localhost", 18300);
             String name = "rmi://localhost/ElectionService";
             Election c = (Election) registry.lookup(name);
             return c;
-        }catch (RemoteException re) {
-                System.out.println("BOOOM ! Remote Exception");
-                re.printStackTrace();
-        }catch (NotBoundException e) {
-                System.out.println("BOOOM ! NotBoundException exception");
-                e.printStackTrace();
-        }
-        return null;
+       
+        
     }
     private static int voterID;
-    public static void main(String[] args) throws MalformedURLException {
+    public static void main(String[] args) throws MalformedURLException, NotBoundException {
 		try {	
 			Election c = initRmiElection();
 			try{

@@ -4,10 +4,13 @@ import java.rmi.server.*;
 import java.sql.*;
 import java.util.*;
 public class ElectionController extends UnicastRemoteObject implements Election {
-    private static List<Integer> loggedInIDs = new ArrayList<Integer>();
+    
+    private static List<Integer> loggedInIDs = new ArrayList<>();
+   
     public ElectionController() throws RemoteException, SQLException {
         super(); 
     }
+    
     @Override
     public List<Candidate> getCandidates() throws RemoteException, SQLException  {
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
@@ -26,6 +29,7 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         conn.close();
         return cands;
     }
+    
     @Override
     public ElectionResult getResults(int id) throws RemoteException, SQLException{
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
@@ -40,6 +44,7 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         }
         return r;
     }
+    
     @Override
     public int login(int voterID) throws RemoteException, SQLException{
         String q = "SELECT COUNT(*) AS count FROM VOTER WHERE ID="+voterID+"";
@@ -58,12 +63,14 @@ public class ElectionController extends UnicastRemoteObject implements Election 
             return 1;
         }
         return 0;
-    };
+    }
+    
     @Override
     public void logout(int voterID) throws RemoteException{
         if(this.loggedInIDs.contains(voterID)) {this.loggedInIDs.remove((Integer)voterID);}
         System.out.println("[Info]\tUser "+voterID+" has disconnected");
     }
+    
     @Override
     public void vote(int voterID, int candidateID) throws RemoteException, SQLException{
         String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;
