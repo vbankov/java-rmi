@@ -1,9 +1,12 @@
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.derby.drda.NetworkServerControl;
 public class ElectionServer {
     
         private static final String DB_DRIVER = "oracle.jdbc.driver.OracleDriver";
@@ -11,10 +14,15 @@ public class ElectionServer {
 	private static final String DB_USER = "dsws";
 	private static final String DB_PASSWORD = "dsws";
     
+        private static  NetworkServerControl server = null;
     
-    public static void initializeDB() throws SQLException{
+    public static void initializeDB() throws SQLException, UnknownHostException, Exception{
        
+      //   Class.forName("oracle.jdbc.driver.OracleDriver");
+        server = new NetworkServerControl(InetAddress.getByName("localhost"),1527);
+        
 // initialize connection        
+       
             Connection conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
             Statement stmt = conn.createStatement();
             PreparedStatement pstmt = null;
@@ -66,7 +74,7 @@ public class ElectionServer {
     
     
     
-    public static void main (String args[]) throws RemoteException, SQLException {
+    public static void main (String args[]) throws RemoteException, SQLException, Exception {
        
         System.setSecurityManager (new MyRMISecurityManager()); // set up a security manager that can handle remote stubs
         
