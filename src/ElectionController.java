@@ -4,9 +4,12 @@ import java.rmi.server.*;
 import java.sql.*;
 import java.util.*;
 public class ElectionController extends UnicastRemoteObject implements Election {
+    //  NOTE:   Consider using a HashTable for quicker data access
+    //          Consider adding a log file to cover cases of data loss
+    //          Consider adding a hash+salt encryption for password-enabled login
     private static List<Integer> loggedInIDs = new ArrayList<Integer>();
     public ElectionController() throws RemoteException, SQLException {
-        super(); 
+        super();
     }
     @Override
     public List<Candidate> getCandidates() throws RemoteException, SQLException  {
@@ -15,7 +18,7 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(q);
         List<Candidate> cands = new ArrayList<Candidate>();
-        while (rs.next()) {  
+        while (rs.next()) {
             String cName = rs.getString("NAME");
             int i = rs.getInt("ID");
             Candidate tempCand = new Candidate();
