@@ -1,4 +1,27 @@
-// a servant class
+/*
+ * The MIT License
+ *
+ * Copyright 2014 Vasilis Bankov, George Peppas, Maria Theodoraki.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+import SecurityController.PasswordHandler;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.sql.*;
@@ -46,23 +69,25 @@ public class ElectionController extends UnicastRemoteObject implements Election 
     }
     
     @Override
-    public int login(int voterID) throws RemoteException, SQLException{
+    public boolean login(int voterID, String providedPassword) throws RemoteException, SQLException{
+        // We will check if the voterID exists in our db and if the provided password is legit
         String q = "SELECT COUNT(*) AS count FROM VOTER WHERE ID="+voterID+"";
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(q);
+        boolean legitPassword = false;
         int k=0;
         while(rs.next()){
             k = rs.getInt("count");
         }
-        if(k>0){
-            if(!this.loggedInIDs.contains(k)) {
+        if(k>0){    // The provided userID exists in our DB
+            if(!this.loggedInIDs.contains(k)) {     // Append ID to loggedIn people array
                 this.loggedInIDs.add(voterID);
                 System.out.println("[Info]\tUser "+voterID+" has connected");
             }
-            return 1;
+            legitPassword = PasswordHandler.checkPassword(voterID, providedPassword);
         }
-        return 0;
+        return legitPassword;
     }
     
     @Override
@@ -87,7 +112,6 @@ public class ElectionController extends UnicastRemoteObject implements Election 
     }
     @Override
     public void vote(int voterID, int candidateID) throws RemoteException, SQLException{
-        System.out.println("vote fired for voterID: "+voterID);
         // Get candidate number of votes 
         String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
@@ -131,8 +155,8 @@ public class ElectionController extends UnicastRemoteObject implements Election 
                 }
             }
         }finally{
-//            pstmtC.close();
-//            pstmtV.close();
+            pstmtC.close();
+            pstmtV.close();
             conn.setAutoCommit(true);
         }
         

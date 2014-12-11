@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright 2014 Vasilis Bankov, George Peppas, Maria Theodoraki.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
@@ -7,6 +30,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.derby.drda.NetworkServerControl;
+import SecurityController.PasswordHandler;        
 
 public class ElectionServer {
     private static final String DB_CONNECTION = "jdbc:derby://localhost:1527/DBElection";
@@ -63,6 +87,7 @@ public class ElectionServer {
         for(int i=0;i<10;i++){
             insertVoters = "INSERT INTO VOTER(ID,HASVOTED) VALUES ("+(i+1)+",0) ";
             stmt.execute(insertVoters);
+            PasswordHandler.savePassword((i+1), "password");
         }
         // close statement and db connection
         stmt.close();
@@ -70,8 +95,9 @@ public class ElectionServer {
     }
     
     public static void main (String args[]) throws RemoteException, SQLException, Exception {
+        System.out.println("=== \tElection Server starting \t==");
         // set up a security manager that can handle remote stubs
-        System.setSecurityManager (new MyRMISecurityManager()); 
+        System.setSecurityManager (new TheRMISecurityManager()); 
         // bind an instance of RMIElection class in Registry 
         Registry registry = LocateRegistry.createRegistry(18300); 
         String name = "rmi://localhost/ElectionService";
