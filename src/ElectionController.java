@@ -72,7 +72,23 @@ public class ElectionController extends UnicastRemoteObject implements Election 
     }
     
     @Override
+    public boolean canVote(int voterID) throws RemoteException,SQLException{
+        String q = "SELECT HASVOTED FROM VOTER WHERE ID = "+voterID;
+        Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(q);
+        int h=1; // Initialize hasVoted to true to make sure that they can't vote if things break
+        while(rs.next()){
+            h = rs.getInt("HASVOTED");
+        }
+        stmt.close();
+        conn.close();
+        return (h==0);
+    }
+    @Override
     public void vote(int voterID, int candidateID) throws RemoteException, SQLException{
+        System.out.println("vote fired for voterID: "+voterID);
+        // Get candidate number of votes 
         String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
         Statement stmt = conn.createStatement();
@@ -81,8 +97,44 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         while(rs.next()){
             currentVotes = rs.getInt("VOTES");
         }
+        // Check if use canVote
+        if(!canVote(voterID)){
+            return;
+        }
+        // Save vote and revoke vote right
         int newVotes = currentVotes+1;
-        q = "UPDATE CANDIDATE SET VOTES="+newVotes+" WHERE ID="+candidateID;
-        System.out.println(q);
+        PreparedStatement pstmtC = null;
+        PreparedStatement pstmtV = null;
+        try{
+            conn.setAutoCommit(false);
+            q = "UPDATE CANDIDATE SET VOTES=? WHERE ID = ? ";
+            pstmtC  = conn.prepareStatement(q);
+            pstmtC.setInt(1, newVotes);
+            pstmtC.setInt(2, candidateID);
+            int updateVotes = pstmtC.executeUpdate();
+            q = "UPDATE VOTER SET HASVOTED=1 WHERE ID = ?";
+            pstmtV = conn.prepareStatement(q);
+            pstmtV.setInt(1,voterID);
+            int updateVoterRight = pstmtV.executeUpdate();
+            System.out.println("A vote for "+candidateID+" was casted with status "+updateVotes);
+            System.out.println("Voter "+voterID+" voted with status "+updateVoterRight);
+            conn.commit();
+        }catch (SQLException se){
+            System.out.println("It's dead Jim!! An SQLException killed it!");
+            se.printStackTrace();
+            if (conn != null) {
+                try {
+                    System.err.print("Transaction is being rolled-back");
+                    conn.rollback();
+                } catch(SQLException excep) {
+                    System.out.println("We are in big trouble. Last transaction can't be rolled-back!");
+                }
+            }
+        }finally{
+//            pstmtC.close();
+//            pstmtV.close();
+            conn.setAutoCommit(true);
+        }
+        
     }
 } // ElectionController
