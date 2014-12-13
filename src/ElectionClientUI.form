@@ -245,7 +245,7 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="voteComboBox" min="-2" pref="150" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
-                      <Component id="jButton2" min="-2" pref="76" max="-2" attributes="0"/>
+                      <Component id="voteBtn" min="-2" pref="76" max="-2" attributes="0"/>
                       <EmptySpace pref="205" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -256,7 +256,7 @@
                       <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jButton2" alignment="3" min="-2" pref="43" max="-2" attributes="0"/>
+                          <Component id="voteBtn" alignment="3" min="-2" pref="43" max="-2" attributes="0"/>
                           <Component id="voteComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="138" max="32767" attributes="0"/>
@@ -270,10 +270,13 @@
                 <Property name="text" type="java.lang.String" value="Vote for Candidate #"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JButton" name="jButton2">
+            <Component class="javax.swing.JButton" name="voteBtn">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Vote"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="voteBtnActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JComboBox" name="voteComboBox">
               <Properties>

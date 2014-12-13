@@ -57,7 +57,8 @@ public class ElectionClientUI extends javax.swing.JFrame {
     }
     private static int voterID;
     private final Election theElection;
-    private boolean isSessionOpen = false;
+    private static boolean isSessionOpen = false;
+    private static boolean voteRight = false;
     
     
     
@@ -82,6 +83,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
         this.theElection = initRmiElection();
         // Make a call-to-action
         statusLabel.setText("Status: Waiting for log-in.");
+        // Initialize app state
     }
 
     /**
@@ -113,7 +115,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
         votes5 = new javax.swing.JLabel();
         votePanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        voteBtn = new javax.swing.JButton();
         voteComboBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -217,7 +219,12 @@ public class ElectionClientUI extends javax.swing.JFrame {
 
         jLabel1.setText("Vote for Candidate #");
 
-        jButton2.setText("Vote");
+        voteBtn.setText("Vote");
+        voteBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voteBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout votePanelLayout = new javax.swing.GroupLayout(votePanel);
         votePanel.setLayout(votePanelLayout);
@@ -229,7 +236,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(voteComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(voteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(205, Short.MAX_VALUE))
         );
         votePanelLayout.setVerticalGroup(
@@ -238,7 +245,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
                 .addGap(21, 21, 21)
                 .addGroup(votePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(voteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(voteComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(138, Short.MAX_VALUE))
         );
@@ -302,6 +309,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
                 int userIn = Integer.parseInt(userInput.getText());
                 String passIn = passInput.getText();
                 boolean loggedIn = this.theElection.login(userIn,passIn);
+                boolean voteRight = this.theElection.canVote(voterID);
                 System.out.println("Log in with id "+userIn+" has status: "+loggedIn);
                 if(loggedIn==true){
                     ElectionClientUI.voterID = userIn;
@@ -327,6 +335,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
     private void updateResultsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateResultsBtnActionPerformed
         List<Election.ElectionResult> resultsList= new ArrayList<>();
         try {
+            voteComboBox.removeAllItems();
             for(int i=1;i<6;i++){
                 Election.ElectionResult er = null;
                 er = this.theElection.getResults(i);
@@ -355,6 +364,13 @@ public class ElectionClientUI extends javax.swing.JFrame {
             Logger.getLogger(ElectionClientUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_updateResultsBtnActionPerformed
+
+    private void voteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voteBtnActionPerformed
+        // TODO: Reconsider this approach
+        int selectedCand = voteComboBox.getSelectedIndex();
+        
+        System.out.println("Vote fired for "+selectedCand);
+    }//GEN-LAST:event_voteBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -401,7 +417,6 @@ public class ElectionClientUI extends javax.swing.JFrame {
     private javax.swing.JLabel candidate3;
     private javax.swing.JLabel candidate4;
     private javax.swing.JLabel candidate5;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton logInOutBtn;
@@ -411,6 +426,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JButton updateResultsBtn;
     private javax.swing.JTextField userInput;
+    private javax.swing.JButton voteBtn;
     private javax.swing.JComboBox voteComboBox;
     private javax.swing.JPanel votePanel;
     private javax.swing.JLabel votes1;
