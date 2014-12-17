@@ -25,24 +25,87 @@ import java.rmi.*;
 import java.sql.*;
 import java.util.List;
 import java.io.Serializable;
-public interface Election extends Remote {
-    public class Candidate implements Serializable{
+public interface Election extends Remote { // The Election interface. It has to extend the java.rmi.Remote package
+    // Note: DTOs have to implement the Serializable interface
+    /**
+     *  Data Transfer Object (DTO) for Candidate. It contains the ID and name of a Candidate.
+     */
+        public class Candidate implements Serializable{     // DTOs need to be Serializable to pass through RMI
         public int id;
         public String name;
     }
+
+    /**
+     *  DTO for ElectionResult. It contains all available data of a Candidate
+     */
     public class ElectionResult implements Serializable{
         public int candidateId;
         public String name;
         public int votes;
     }
+    /**
+     *  DTO for Voter. It contains the ID and the hasVoted status of a Voter
+     */
     public class Voter implements Serializable{
         public int id;
         public boolean hasVoted;
     }
+
+    /*
+     *  RMI functions
+     */
+    
+    /**
+     * @description     Request a list with the ID's and names of the Candidates. 
+     *                  The number of current votes is not returned here, it is part of the ElectionResult DTO's
+     * @return          List of Candidates DTOs
+     * @throws          RemoteException, SQLException
+     */
     public List<Candidate> getCandidates() throws RemoteException, SQLException;
+    
+    /**
+     * @desc        Request the full data from the `Candidate` table for a given ID.
+     *              The difference with the previous function is that this DTO also has the number of votes.
+     * @param id    Candidate ID
+     * @return      ElectionResult DTO
+     * @throws      RemoteException, SQLException
+     */
     public ElectionResult getResults(int id) throws RemoteException, SQLException;
+    
+    /**
+     * @desc    Log-in to server
+     * @param   voterID
+     * @param   providedPassword
+     * @return  True on success, False on fail
+     * @throws  RemoteException
+     * @throws  SQLException
+     */
     public boolean login(int voterID, String providedPassword) throws RemoteException, SQLException;
+
+    /**
+     * @desc    Log a user out 
+     * @param   voterID
+     * @throws  RemoteException
+     */
     public void logout(int voterID) throws RemoteException;
+
+    /**
+     * @desc    Check if a user has a right to vote.
+     * @param   voterID
+     * @return  True if `VOTER.HASVOTED`=0, False otherwise
+     * @throws  RemoteException
+     * @throws  SQLException
+     */
     public boolean canVote(int voterID) throws RemoteException,SQLException;
-    public void vote(int voterID, int candidateID) throws RemoteException, SQLException;
+
+    /**
+     * @desc    Cast a vote for a candidate.
+     *          To ensure data integrity a synchronized query is executed and everything is rolled-back in case of any problem.
+     * @param   voterID
+     * @param   candidateID
+     * @return  True if vote was casted
+     * @throws  RemoteException
+     * @throws  SQLException
+     */
+    public boolean vote(int voterID, int candidateID) throws RemoteException, SQLException;
 } // Election

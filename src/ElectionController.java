@@ -70,7 +70,7 @@ public class ElectionController extends UnicastRemoteObject implements Election 
     
     @Override
     public boolean login(int voterID, String providedPassword) throws RemoteException, SQLException{
-        // We will check if the voterID exists in our db and if the provided password is legit
+        // Check if the voterID exists in our db and if the provided password is legit
         String q = "SELECT COUNT(*) AS count FROM VOTER WHERE ID="+voterID+"";
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
         Statement stmt = conn.createStatement();
@@ -111,19 +111,20 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         return (h==0);
     }
     @Override
-    public void vote(int voterID, int candidateID) throws RemoteException, SQLException{
+    public boolean vote(int voterID, int candidateID) throws RemoteException, SQLException{
         // Get candidate number of votes 
         String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(q);
+        boolean votedStatus = false;
         int currentVotes=-1;
         while(rs.next()){
             currentVotes = rs.getInt("VOTES");
         }
         // Check if use canVote
         if(!canVote(voterID)){
-            return;
+            return false;
         }
         // Save vote and revoke vote right
         int newVotes = currentVotes+1;
@@ -140,25 +141,24 @@ public class ElectionController extends UnicastRemoteObject implements Election 
             pstmtV = conn.prepareStatement(q);
             pstmtV.setInt(1,voterID);
             int updateVoterRight = pstmtV.executeUpdate();
-            System.out.println("A vote for "+candidateID+" was casted with status "+updateVotes);
+            System.out.println("A vote for candidate "+candidateID+" was casted with status "+updateVotes);
             System.out.println("Voter "+voterID+" voted with status "+updateVoterRight);
             conn.commit();
+            votedStatus = true;
         }catch (SQLException se){
             System.out.println("It's dead Jim!! An SQLException killed it!");
             se.printStackTrace();
-            if (conn != null) {
-                try {
-                    System.err.print("Transaction is being rolled-back");
-                    conn.rollback();
-                } catch(SQLException excep) {
-                    System.out.println("We are in big trouble. Last transaction can't be rolled-back!");
-                }
+            try {
+                System.err.print("Transaction is being rolled-back");
+                conn.rollback();
+            } catch(SQLException excep) {
+                System.out.println("We are in big trouble. Last transaction can't be rolled-back!");
             }
         }finally{
             pstmtC.close();
             pstmtV.close();
             conn.setAutoCommit(true);
         }
-        
+        return votedStatus;
     }
 } // ElectionController

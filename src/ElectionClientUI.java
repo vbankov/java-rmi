@@ -220,6 +220,7 @@ public class ElectionClientUI extends javax.swing.JFrame {
         jLabel1.setText("Vote for Candidate #");
 
         voteBtn.setText("Vote");
+        voteBtn.setEnabled(false);
         voteBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voteBtnActionPerformed(evt);
@@ -235,9 +236,9 @@ public class ElectionClientUI extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(voteComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(voteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(205, Short.MAX_VALUE))
+                .addContainerGap(221, Short.MAX_VALUE))
         );
         votePanelLayout.setVerticalGroup(
             votePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -309,16 +310,17 @@ public class ElectionClientUI extends javax.swing.JFrame {
                 int userIn = Integer.parseInt(userInput.getText());
                 String passIn = passInput.getText();
                 boolean loggedIn = this.theElection.login(userIn,passIn);
-                boolean voteRight = this.theElection.canVote(voterID);
                 System.out.println("Log in with id "+userIn+" has status: "+loggedIn);
                 if(loggedIn==true){
                     ElectionClientUI.voterID = userIn;
+                    ElectionClientUI.voteRight = this.theElection.canVote(voterID);
+                    voteBtn.setEnabled(ElectionClientUI.voteRight); // Vote buttpn is enabled when user canVote
                     this.isSessionOpen = true;
                     tabbedPane.setVisible(true);
                     userInput.setVisible(false);
                     passInput.setVisible(false);
                     logInOutBtn.setText("Log-out");
-                    statusLabel.setText("Status: Connected as user "+userIn);
+                    statusLabel.setText("Status: Connected as user "+userIn+" with vote rights "+ElectionClientUI.voteRight);
                 }else{
                     statusLabel.setText("Status: Login failed.");
                 }
@@ -366,10 +368,29 @@ public class ElectionClientUI extends javax.swing.JFrame {
     }//GEN-LAST:event_updateResultsBtnActionPerformed
 
     private void voteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voteBtnActionPerformed
-        // TODO: Reconsider this approach
-        int selectedCand = voteComboBox.getSelectedIndex();
-        
-        System.out.println("Vote fired for "+selectedCand);
+        // TODO: Reconsider this approach. If all data is in a HashMap or something, we can search for the info in there before firing the vote function.
+        int selectedCandidate = voteComboBox.getSelectedIndex()+1;
+        int iAmVoter = ElectionClientUI.voterID;
+        boolean iCanVote = ElectionClientUI.voteRight;
+        boolean voteWasCasted = false;
+        System.out.println("Vote fired for candidate "+selectedCandidate+" from voter "+ElectionClientUI.voterID+" with voteRight="+iCanVote);
+        if(iCanVote){
+            try {
+              boolean iCanVoteForSure = theElection.canVote(iAmVoter);    // recheck vote rights
+              System.out.println("iCanVoteForSure status is "+iCanVoteForSure);
+              voteBtn.setEnabled(iCanVoteForSure);
+              if(iCanVoteForSure==true){
+               statusLabel.setText("Your vote was casted");
+               voteWasCasted = this.theElection.vote(iAmVoter, selectedCandidate);
+               ElectionClientUI.voteRight = this.theElection.canVote(voterID);
+               voteBtn.setEnabled(ElectionClientUI.voteRight);
+              }
+            } catch (RemoteException | SQLException ex) {
+                Logger.getLogger(ElectionClientUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else{
+            
+        }
     }//GEN-LAST:event_voteBtnActionPerformed
 
     /**
