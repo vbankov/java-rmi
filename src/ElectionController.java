@@ -114,51 +114,53 @@ public class ElectionController extends UnicastRemoteObject implements Election 
     @Override
     public boolean vote(int voterID, int candidateID) throws RemoteException, SQLException{
         // Get candidate number of votes 
-        String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;
-        Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(q);
+        String q = "SELECT VOTES FROM CANDIDATE WHERE ID="+candidateID;     // query for the vote count
+        Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");    //connect to db
+        Statement stmt = conn.createStatement();    // create a new statement
+        ResultSet rs = stmt.executeQuery(q);        // execute the query
         boolean votedStatus = false;
         int currentVotes=-1;
         while(rs.next()){
             currentVotes = rs.getInt("VOTES");
         }
-        // Check if use canVote
-        if(!canVote(voterID)){
+        // If NOT canVote return false
+        if(!canVote(voterID)){  
             return false;
         }
-        // Save vote and revoke vote right
+        // If canVote Save vote and revoke vote right
+        // We will use an SQL prepared statement to sync the queries and assure data integrity using a rollback in any case of a problem
         int newVotes = currentVotes+1;
-        PreparedStatement pstmtC = null;
-        PreparedStatement pstmtV = null;
+        PreparedStatement pstmtC = null; // prepared statement for Candidate
+        PreparedStatement pstmtV = null; // prepared statement for Voter
         try{
-            conn.setAutoCommit(false);
-            q = "UPDATE CANDIDATE SET VOTES=? WHERE ID = ? ";
+            conn.setAutoCommit(false); // disable auto commit and do it manually
+            q = "UPDATE CANDIDATE SET VOTES=? WHERE ID = ? ";   // new candidate votes value
             pstmtC  = conn.prepareStatement(q);
             pstmtC.setInt(1, newVotes);
             pstmtC.setInt(2, candidateID);
             int updateVotes = pstmtC.executeUpdate();
-            q = "UPDATE VOTER SET HASVOTED=1 WHERE ID = ?";
+            q = "UPDATE VOTER SET HASVOTED=1 WHERE ID = ?";     // new user hasVoted status
             pstmtV = conn.prepareStatement(q);
             pstmtV.setInt(1,voterID);
-            int updateVoterRight = pstmtV.executeUpdate();
+            int updateVoterRight = pstmtV.executeUpdate();      // try to execute the above
             System.out.println("A vote for candidate "+candidateID+" was casted with status "+updateVotes);
             System.out.println("Voter "+voterID+" voted with status "+updateVoterRight);
-            conn.commit();
+            conn.commit();  // Manually commit the above changes
             votedStatus = true;
-        }catch (SQLException se){
+        }catch (SQLException se){   // SQLExceptions: Gotta catch em all !
             System.out.println("It's dead Jim!! An SQLException killed it!");
             se.printStackTrace();
             try {
                 System.err.print("Transaction is being rolled-back");
                 conn.rollback();
             } catch(SQLException excep) {
-                System.out.println("We are in big trouble. Last transaction can't be rolled-back!");
+                System.out.println("We are in big trouble. Last transaction can't be rolled-back!"); // This is why we use a license
             }
-        }finally{
+        }finally{   // Connections & Statements: Gotta close em all !
             pstmtC.close();
-            pstmtV.close();
-            conn.setAutoCommit(true);
+            pstmtV.close(); 
+            conn.setAutoCommit(true);   // re-enable auto commit
+            conn.close();
         }
         return votedStatus;
     }
