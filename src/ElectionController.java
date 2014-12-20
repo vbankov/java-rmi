@@ -80,6 +80,7 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         while(rs.next()){
             k = rs.getInt("count");
         }
+        // TODO: Revisit the whole loggedInIDs procedure
         if(k>0){    // The provided userID exists in our DB
             if(!this.loggedInIDs.contains(k)) {     // Append ID to loggedIn people array
                 this.loggedInIDs.add(voterID);
