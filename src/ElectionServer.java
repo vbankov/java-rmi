@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.derby.drda.NetworkServerControl;
 import SecurityController.PasswordHandler;        
+import java.util.Collections;
 
 public class ElectionServer {
     private static final String DB_CONNECTION = "jdbc:derby://localhost:1527/DBElection";
@@ -48,11 +49,13 @@ public class ElectionServer {
         stmt.execute(emptyTableCands);
         // the candidates list is
         List<String> listCandidates = new ArrayList<>();
-        listCandidates.add("Goofy");
         listCandidates.add("Donald Duck");
+        listCandidates.add("Duffy Duck");
+        listCandidates.add("Goofy");
         listCandidates.add("Mickey Mouse");
         listCandidates.add("Pluto");
-        listCandidates.add("Uncle Scrooge");
+        // shuffle the list
+        Collections.shuffle(listCandidates);
         // populate db with candidates   
         try{
             conn.setAutoCommit(false);
@@ -111,11 +114,8 @@ public class ElectionServer {
         // bind election to registry
         registry.rebind(name, newElection);
 
-        // shout out
+        // things shoulb be awesome now. inform the humans
         System.out.println("Election service started: \tRMI magic happens on port 18300");
-        
-        
-        
         
     } // main
 } // ElectionServer

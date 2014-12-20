@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 vasilis.
+ * Copyright 2014 Vasilis Bankov, George Peppas, Maria Theodoraki.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -380,16 +380,18 @@ public class ElectionClientUI extends javax.swing.JFrame {
               System.out.println("iCanVoteForSure status is "+iCanVoteForSure);
               voteBtn.setEnabled(iCanVoteForSure);
               if(iCanVoteForSure==true){
-               statusLabel.setText("Your vote was casted");
+               statusLabel.setText("Your vote was successfully casted!");
                voteWasCasted = this.theElection.vote(iAmVoter, selectedCandidate);
                ElectionClientUI.voteRight = this.theElection.canVote(voterID);
                voteBtn.setEnabled(ElectionClientUI.voteRight);
+              }else{
+               statusLabel.setText("Oops! The Server actively denied your vote");
               }
             } catch (RemoteException | SQLException ex) {
                 Logger.getLogger(ElectionClientUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }else{
-            
+           statusLabel.setText("Oops! It seems that you can not vote");
         }
     }//GEN-LAST:event_voteBtnActionPerformed
 
