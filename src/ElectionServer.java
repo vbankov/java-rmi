@@ -44,7 +44,7 @@ public class ElectionServer {
         server = new NetworkServerControl(InetAddress.getByName("localhost"),1527);
         
         // start the db server
-        // server.start(new PrintWriter(System.out));
+         server.start(new PrintWriter(System.out));
         
         // initialize connection        
         Connection conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
