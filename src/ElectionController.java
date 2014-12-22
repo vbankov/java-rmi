@@ -75,20 +75,26 @@ public class ElectionController extends UnicastRemoteObject implements Election 
         Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/DBElection", "dsws", "dsws");
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(q);
-        boolean legitPassword = false;
+        /* to enable PasswordEnabledLogin, remove comment from next line */
+        //boolean legitPassword = false;
         int k=0;
         while(rs.next()){
             k = rs.getInt("count");
         }
-        // TODO: Revisit the whole loggedInIDs procedure
         if(k>0){    // The provided userID exists in our DB
             if(!this.loggedInIDs.contains(k)) {     // Append ID to loggedIn people array
                 this.loggedInIDs.add(voterID);
                 System.out.println("[Info]\tUser "+voterID+" has connected");
             }
-            legitPassword = PasswordHandler.checkPassword(voterID, providedPassword);
+            /* to enable PasswordEnabledLogin, add comment to next line */
+            return true;
+            /* to enable PasswordEnabledLogin, remove comment from next line */
+            //legitPassword = PasswordHandler.checkPassword(voterID, providedPassword);
+        }else{
+            return false;
         }
-        return legitPassword;
+        /* to enable PasswordEnabledLogin, remove comment from next line */
+        //return legitPassword;
     }
     
     @Override

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.derby.drda.NetworkServerControl;
 import SecurityController.PasswordHandler;        
+import java.io.PrintWriter;
 import java.util.Collections;
 
 public class ElectionServer {
@@ -39,11 +40,17 @@ public class ElectionServer {
     private static final String DB_PASSWORD = "dsws";
     private static  NetworkServerControl server = null;
     public static void initializeDB() throws SQLException, UnknownHostException, Exception{
+        /* For password-enabled login add a column named `PASSWORD` of type VarChar in the `VOTER` table and uncomment all lines where noted */
         server = new NetworkServerControl(InetAddress.getByName("localhost"),1527);
+        
+        // start the db server
+        // server.start(new PrintWriter(System.out));
+        
         // initialize connection        
         Connection conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
         Statement stmt = conn.createStatement();
         PreparedStatement pstmt = null;
+        
         // empty candidates table
         String emptyTableCands = "TRUNCATE TABLE CANDIDATE"; // empty candidates table
         stmt.execute(emptyTableCands);
@@ -90,7 +97,10 @@ public class ElectionServer {
         for(int i=0;i<10;i++){
             insertVoters = "INSERT INTO VOTER(ID,HASVOTED) VALUES ("+(i+1)+",0) ";
             stmt.execute(insertVoters);
-            PasswordHandler.savePassword((i+1), "password");
+            
+            /* to enable PasswordEnabledLogin, remove comment from next line */
+            // PasswordHandler.savePassword((i+1), "password");
+            
         }
         // close statement and db connection
         stmt.close();
